@@ -110,6 +110,11 @@ app.post("/", (req,res) => {
 });
 
 // Spin up the server 
-app.listen(3000, () => {
-    console.log("The server is running on port 3000.")
+let port = process.env.PORT;
+if (port == null || port == "") {
+    port = 3000;
+}
+
+app.listen(port, () => {
+    console.log("Server has started successfully.")
 });
