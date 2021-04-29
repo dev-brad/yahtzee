@@ -1,0 +1,184 @@
+<%- include ("partials/header") %> 
+
+<body>
+    <header class="container">
+        <h1>Yahtzee</h1>
+    </header>
+
+    <main>
+        <section class="roll container">
+            <% var diceNum = 0;  %>
+            <% for (var i=0; i < diceRoll.length; i++) {%> 
+                <% diceNum++ %>
+                <% if (!diceKept.includes(String(i + 1))) { %>
+                    <img id="dice<%= diceNum %>" class="dice-img" src="images/dice<%= diceRoll[i] %>.svg" alt="dice <%= diceRoll[i] %>">
+                <% } else { %>
+                    <img id="dice<%= diceNum %>" class="dice-img pressed" src="images/dice<%= diceRoll[i] %>.svg" alt="dice <%= diceRoll[i] %>">
+                <% } %>
+            <% } %> 
+
+            <div class="roll-buttons row">
+                <!-- <div class="col-2"></div> -->
+                <div class="col-12">
+                    <form class="form" action="/" method="post">
+                        <% if (rollCount < 3) { %> 
+                            <input type="hidden" class="dice-kept" name="diceKept" value=diceKept>
+                            <% if (rollMessage.includes("End of game")) { %> 
+                                <button name="rollBtn" value="Y" id="roll-btn" class="btn btn-outline-light btn-lg">Roll to Start New Game</button>
+                            <% } else { %> 
+                                <button name="rollBtn" value="Y" id="roll-btn" class="btn btn-outline-light btn-lg">Roll Dice</button>
+                            <% } %>
+                        <% } %> 
+                        <% if (rollCount > 0) { %> 
+                            <input type="hidden" name="scoreCat" value="<%= scoreCat %>">
+                            <input type="hidden" name="score" value="<%= score %>">
+                            <button name="scoreBtn" value="Y" id="score-btn" class="btn btn-outline-light btn-lg">Log Score</button>
+                        <% } %> 
+                    </form>
+                </div>
+                <!-- <div class="col-2"></div> -->
+            </div>
+            <div class="roll-message row">
+                <h3 class="roll-msg"><%= rollMessage %></h3>
+            </div>
+        </section>
+
+        <section class="scorecard">
+            <div class="container">
+                <form id="score-form" action="/" method="post">
+                    <input type="hidden" class="dice-kept" name="diceKept" value=diceKept>
+                    <input type="hidden" name="diceRoll" value=<%= diceRoll %> >
+                    <div class="row row-dark">
+                        <div class="col-6">Upper Section</div>
+                        <div class="col-6">Lower Section</div>
+                    </div>
+                    <div class="row">
+                        <div class="col"><button class="score-btn" name="scoreCat" value="ones" type="submit"> Ones </button></div>
+                        <% if (scoreCat === "ones") { %> 
+                            <div class="col col-score"><%= score %></div> 
+                        <% } else { %> 
+                            <div id="score1" class="col col-scored"><%= scoreCard.ones %></div>
+                        <% } %>
+                        
+                        <div class="col"><button class="score-btn" name="scoreCat" value="threeOfAKind" type="submit">3 of a Kind</button></div>
+                        <% if (scoreCat === "threeOfAKind") { %> 
+                            <div class="col col3-score"><%= score %></div> 
+                        <% } else { %> 
+                            <div id="score2" class="col col3-scored"><%= scoreCard.threeOfAKind %></div>
+                        <% } %> 
+                    </div>
+                    <div class="row">
+                        <div class="col"><button class="score-btn" name="scoreCat" value="twos" type="submit">Twos</button></div>
+                        <% if (scoreCat === "twos") { %> 
+                            <div class="col col-score"><%= score %></div> 
+                        <% } else { %> 
+                            <div id="score3" class="col col-scored"><%= scoreCard.twos %></div>
+                        <% } %>
+
+                        <div class="col"><button class="score-btn" name="scoreCat" value="fourOfAKind" type="submit">4 of a Kind</button></div>
+                        <% if (scoreCat === "fourOfAKind") { %> 
+                            <div class="col col3-score"><%= score %></div> 
+                        <% } else { %> 
+                            <div id="score4" class="col col3-scored"><%= scoreCard.fourOfAKind %></div>
+                        <% } %>
+                    </div>
+                    <div class="row">
+                        <div class="col"><button class="score-btn" name="scoreCat" value="threes" type="submit">Threes</button></div>
+                        <% if (scoreCat === "threes") { %> 
+                            <div class="col col-score"><%= score %></div> 
+                        <% } else { %> 
+                            <div id="score5" class="col col-scored"><%= scoreCard.threes %></div>
+                        <% } %>
+
+                        <div class="col"><button class="score-btn" name="scoreCat" value="fullHouse" type="submit">Full House</button></div>
+                        <% if (scoreCat === "fullHouse") { %> 
+                            <div class="col col3-score"><%= score %></div> 
+                        <% } else { %> 
+                            <div id="score6" class="col col3-scored"><%= scoreCard.fullHouse %></div>
+                        <% } %>
+                    </div>
+                    <div class="row">
+                        <div class="col"><button class="score-btn" name="scoreCat" value="fours" type="submit">Fours</button></div>
+                        <% if (scoreCat === "fours") { %> 
+                            <div class="col col-score"><%= score %></div> 
+                        <% } else { %> 
+                            <div id="score7" class="col col-scored"><%= scoreCard.fours %></div>
+                        <% } %>
+
+                        <div class="col"><button class="score-btn" name="scoreCat" value="smallStraight" type="submit">Small Straight</button></div>
+                        <% if (scoreCat === "smallStraight") { %> 
+                            <div class="col col3-score"><%= score %></div> 
+                        <% } else { %> 
+                            <div id="score8" class="col col3-scored"><%= scoreCard.smallStraight %></div>
+                        <% } %>
+                    </div>
+                    <div class="row">
+                        <div class="col"><button class="score-btn" name="scoreCat" value="fives" type="submit">Fives</button></div>
+                        <% if (scoreCat === "fives") { %> 
+                            <div class="col col-score"><%= score %></div> 
+                        <% } else { %> 
+                            <div id="score9" class="col col-scored"><%= scoreCard.fives %></div>
+                        <% } %>
+
+                        <div class="col"><button class="score-btn" name="scoreCat" value="largeStraight" type="submit">Large Straight</button></div>
+                        <% if (scoreCat === "largeStraight") { %> 
+                            <div class="col col3-score"><%= score %></div> 
+                        <% } else { %> 
+                            <div id="score10" class="col col3-scored"><%= scoreCard.largeStraight %></div>
+                        <% } %>
+                    </div>
+                    <div class="row">
+                        <div class="col"><button class="score-btn" name="scoreCat" value="sixes" type="submit">Sixes</button></div>
+                        <% if (scoreCat === "sixes") { %> 
+                            <div class="col col-score"><%= score %></div> 
+                        <% } else { %> 
+                            <div id="score11" class="col col-scored"><%= scoreCard.sixes %></div>
+                        <% } %>
+
+                        <div class="col"><button class="score-btn" name="scoreCat" value="yahtzee" type="submit">Yahtzee</button></div>
+                        <% if (scoreCat === "yahtzee") { %> 
+                            <div class="col col3-score"><%= score %></div> 
+                        <% } else { %> 
+                            <div id="score12" class="col col3-scored"><%= scoreCard.yahtzee %></div>
+                        <% } %>
+                    </div>
+                    <div class="row">
+                        <div class="col col-bold">Subtotal</div>
+                        <div class="col col-bold"><%= scoreCard.upperSubtotal %></div>
+
+                        <div class="col"><button class="score-btn" name="scoreCat" value="chance" type="submit">Chance</button></div>
+                        <% if (scoreCat === "chance") { %> 
+                            <div class="col col3-score"><%= score %></div> 
+                        <% } else { %> 
+                            <div id="score13" class="col col3-scored"><%= scoreCard.chance %></div>
+                        <% } %>
+                    </div>
+                    <div class="row">
+                        <div class="col">Bonus</div>
+                        <div class="col"><%= scoreCard.upperBonus %></div>
+                        <div class="col">Yahtzee Bonus</div>
+                        <div class="col"><%= scoreCard.yahtzeeBonus %></div>
+                    </div>
+                    <div class="row">
+                        <div class="col col-bold">Total Upper Section</div>
+                        <div class="col col-bold"><%= scoreCard.upperTotal %></div>
+                        <div class="col col-bold">Total Lower Section</div>
+                        <div class="col col-bold"><%= scoreCard.lowerTotal %></div>
+                    </div>
+                    <div class="row row-dark">
+                        <div class="col-3">Grand Total</div>
+                        <div class="col-3"><%= scoreCard.grandTotal %></div>
+                        <div class="col-6"></div>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <%- include ("partials/footer") %> 
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> 
+    <script src="js/game.js"></script>
+</body>
+</html>

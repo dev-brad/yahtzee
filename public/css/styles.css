@@ -1,0 +1,154 @@
+body {
+  background-color: #9b5151;
+  color: #ffee93;
+  font-family: "Open Sans", sans-serif;
+}
+
+header {
+  text-align: center;
+  padding: 1rem;
+}
+
+h1 {
+  font-size: 5rem;
+  font-family: "Raleway", sans-serif;
+}
+
+img {
+  width: 100px;
+  margin: 0 0.5rem;
+}
+
+.scorecard .col,
+.scorecard .col-3,
+.scorecard .col-6 {
+  border: solid 1px black;
+  padding: 0.25rem 0.75rem;
+}
+
+.scorecard .col-6 {
+  text-align: center;
+}
+
+.roll {
+  text-align: center;
+  padding: 1rem 1rem 0.5rem;
+}
+
+.roll-buttons,
+.roll-message {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.btn {
+  font-weight: bold;
+}
+
+.score-btn {
+  all: unset;
+  width: 100%;
+  cursor: pointer;
+  transition-duration: 0.4s;
+}
+
+.score-btn:focus {
+  outline: none;
+}
+
+.score-btn:hover {
+  color: #ecae03;
+  font-weight: 900;
+}
+
+.form {
+  display: inline;
+}
+
+.roll-msg {
+  font-weight: 800;
+}
+
+.scorecard .row {
+  background-color: #eeeeee;
+  color: #9b5151;
+}
+
+.scorecard .row-dark {
+  background-color: #f5d782;
+  font-weight: bold;
+}
+
+.scorecard .col-bold {
+  font-weight: bold;
+}
+
+.pressed {
+  box-shadow: 0 0 20px white;
+  background-color: grey;
+}
+
+.disabled {
+  cursor: auto;
+}
+
+.disabled:hover {
+  color: #9b5151;
+  font-weight: 400;
+}
+
+.scored {
+  font-weight: bold;
+  background-color: rgb(191, 209, 191);
+  color: #9b5151;
+}
+
+footer {
+  margin: 2rem 0;
+  text-align: right;
+}
+
+footer a {
+  color: #eeeeee;
+}
+
+footer a:hover {
+  color: #f5d782;
+}
+
+@media screen and (max-width: 767px) {
+  header,
+  .roll {
+    padding: 0.5rem 0 0 0;
+    margin: 0;
+    text-align: center;
+  }
+
+  h1 {
+    font-size: 3rem;
+  }
+
+  .dice-img {
+    width: 45px;
+  }
+
+  .btn,
+  .roll-msg,
+  .scorecard {
+    font-size: x-small;
+  }
+
+  #score-form {
+    margin: 0, 0.25rem;
+  }
+
+  footer {
+    font-size: xx-small;
+  }
+}
+
+@media screen and (max-width: 374px) {
+  .dice-img {
+    width: 40px;
+  }
+}
