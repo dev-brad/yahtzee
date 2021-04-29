@@ -27,9 +27,9 @@ var score = null;
 var diceRoll = [1,2,3,4,5];   // the dice that were rolled and will display on page
 var diceKept = [];            // the dice that were kept and need to be highlighted on page
 var rollCount = 0;            // the roll count for turn
-var turnCount = 0;
-var yahtzee;
-var endTurn = false;            // flag to check if turn has ended
+var turnCount = 0;            // keep up with turn count, max of 13
+var yahtzee;                  // yahtzee bonus flag
+var endTurn = false;          // flag to check if turn has ended
 
 // Get Requests 
 app.get("/", (req,res) => {
