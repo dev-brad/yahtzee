@@ -3,7 +3,6 @@ const express = require("express");
 const path = require("path");
 const Roll = require("roll");
 const bodyParser = require("body-parser");
-const { Template } = require("ejs");
 
 // Require internal modules 
 const newGame = require(__dirname + "/new-game");
