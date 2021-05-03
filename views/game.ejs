@@ -20,7 +20,7 @@
             <div class="roll-buttons row">
                 <!-- <div class="col-2"></div> -->
                 <div class="col-12">
-                    <form class="form" action="/" method="post">
+                    <form class="form" action="/<%= playerNum %>" method="post">
                         <% if (rollCount < 3) { %> 
                             <input type="hidden" class="dice-kept" name="diceKept" value=diceKept>
                             <% if (rollMessage.includes("End of game")) { %> 
@@ -45,7 +45,7 @@
 
         <section class="scorecard">
             <div class="container">
-                <form id="score-form" action="/" method="post">
+                <form id="score-form" action="/<%= playerNum %>" method="post">
                     <input type="hidden" class="dice-kept" name="diceKept" value=diceKept>
                     <input type="hidden" name="diceRoll" value=<%= diceRoll %> >
                     <div class="row row-dark">

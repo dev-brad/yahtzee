@@ -20,7 +20,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
 
 // Global variables
-const playerNum = Math.random();
+const playerNum = Math.floor(Math.random() * 10000);
 var rollMessage = "Welcome! Roll dice to begin.";
 var scoreCard;
 var scoreCat;
@@ -32,103 +32,101 @@ var turnCount = 0;            // keep up with turn count, max of 13
 var yahtzee;                  // yahtzee bonus flag
 var endTurn = false;          // flag to check if turn has ended
 
-const player = {
-    playerNum: playerNum,
-    rollMessage: rollMessage,
-    scoreCard: scoreCard,
-    scoreCat: scoreCat,
-    score: score,
-    diceRoll: diceRoll,
-    diceKept: diceKept,
-    rollCount: rollCount,
-    turnCount: turnCount,
-    yahtzee: yahtzee,
-    endTurn: endTurn
-}
-
 // Get Requests 
 app.get("/", (req,res) => {
 
-    if (player.playerNum === playerNum) {
-
-        if (player.endTurn === true) {
-            player.diceKept = [];
-            player.scoreCat = '';
-            player.score = null;          
-            player.rollCount = 0;
-            player.rollMessage = "New turn. Roll to get started."
-            player.endTurn = false;
-            player.turnCount++;
-        }
-
-        if (player.turnCount === 0) {
-            newGame.startNewGame( (newScoreCard) => {
-                player.scoreCard = newScoreCard
-            });
-        }
-
-        if (player.turnCount === 13) {
-            player.rollMessage = "End of game. Final score is " + scoreCard.grandTotal + "!";
-            player.diceRoll = [6,6,6,6,6];
-            player.turnCount = 0;
-        }
-
+    if (turnCount === 0) {
+        newGame.startNewGame( (newScoreCard) => {
+            scoreCard = newScoreCard
+        });
     }
 
-    res.render("game", {rollMessage: player.rollMessage,
-        diceRoll: player.diceRoll,
-        diceKept: player.diceKept,
-        rollCount: player.rollCount,
-        scoreCard: player.scoreCard,
-        scoreCat: player.scoreCat,
-        score: player.score
-    });
+    res.render("game", {rollMessage: rollMessage,
+    diceRoll: diceRoll,
+    diceKept: diceKept,
+    rollCount: rollCount,
+    scoreCard: scoreCard,
+    scoreCat: scoreCat,
+    score: score,
+    playerNum: playerNum});
+
 });
 
-app.post("/", (req,res) => {
+app.get("/:playerNum", (req,res) => {
 
-    if (player.playerNum === playerNum) {
-
-        if (req.body.rollBtn) {
-            player.scoreCat = "";
-
-            turn.takeTurn(req.body.diceKept, player.rollCount, player.diceRoll, (turnDiceKept, turnDiceRoll, turnRollCount, turnRollMessage) => {
-                player.diceKept = turnDiceKept;
-                player.diceRoll = turnDiceRoll;
-                player.rollCount = turnRollCount;
-                player.rollMessage = turnRollMessage;
-                res.redirect("/");
-            });
-        } else if (req.body.scoreBtn) {
-
-            if (player.score === null) {
-                player.rollMessage = "Select score card category below to log score."
-                res.redirect("/");
-            } else {
-                scoreCat = req.body.scoreCat;
-                score = req.body.score;
-
-                turn.logScore(scoreCat, score, player.scoreCard, player.yahtzee, (scoreUpdate) => {
-                    player.scoreCard = scoreUpdate;
-                    player.endTurn = true;
-                    res.redirect("/");
-                });
-            }
-            
-        } else {
-            player.scoreCat = req.body.scoreCat;
-            player.diceCalc = req.body.diceRoll;
-            player.diceKept = req.body.diceKept;
-            player.rollMessage = "Click to log score."
-
-            turn.calcScore(player.scoreCat, player.diceCalc, (result, bonus) => {
-                player.score = result;
-                player.yahtzee = bonus;
-                res.redirect("/");
-            });
-        }
+    if (endTurn === true) {
+        diceKept = [];
+        scoreCat = '';
+        score = null;          
+        rollCount = 0;
+        rollMessage = "New turn. Roll to get started."
+        endTurn = false;
+        turnCount++;
     }
 
+    if (turnCount === 0) {
+        newGame.startNewGame( (newScoreCard) => {
+            scoreCard = newScoreCard
+        });
+    }
+
+    if (turnCount === 13) {
+        rollMessage = "End of game. Final score is " + scoreCard.grandTotal + "!";
+        diceRoll = [6,6,6,6,6];
+        turnCount = 0;
+    }
+
+    res.render("game", {rollMessage: rollMessage,
+    diceRoll: diceRoll,
+    diceKept: diceKept,
+    rollCount: rollCount,
+    scoreCard: scoreCard,
+    scoreCat: scoreCat,
+    score: score,
+    playerNum, playerNum});
+
+});
+
+app.post("/:playerNum", (req,res) => {
+
+    if (req.body.rollBtn) {
+        scoreCat = "";
+
+        turn.takeTurn(req.body.diceKept, rollCount, diceRoll, (turnDiceKept, turnDiceRoll, turnRollCount, turnRollMessage) => {
+            diceKept = turnDiceKept;
+            diceRoll = turnDiceRoll;
+            rollCount = turnRollCount;
+            rollMessage = turnRollMessage;
+            res.redirect("/" + playerNum);
+        });
+    } else if (req.body.scoreBtn) {
+
+        if (score === null) {
+            rollMessage = "Select score card category below to log score."
+            res.redirect("/" + playerNum);
+        } else {
+            scoreCat = req.body.scoreCat;
+            score = req.body.score;
+
+            turn.logScore(scoreCat, score, scoreCard, yahtzee, (scoreUpdate) => {
+                scoreCard = scoreUpdate;
+                endTurn = true;
+                res.redirect("/" + playerNum);
+            });
+        }
+        
+    } else {
+        scoreCat = req.body.scoreCat;
+        diceCalc = req.body.diceRoll;
+        diceKept = req.body.diceKept;
+        rollMessage = "Click to log score."
+
+        turn.calcScore(scoreCat, diceCalc, (result, bonus) => {
+            score = result;
+            yahtzee = bonus;
+            res.redirect("/" + playerNum);
+        });
+    }
 });
 
 // Spin up the server 
