@@ -3,6 +3,7 @@ const express = require("express");
 const path = require("path");
 const Roll = require("roll");
 const bodyParser = require("body-parser");
+const session = require("express-session");
 
 // Require internal modules 
 const newGame = require(__dirname + "/new-game");
@@ -15,6 +16,12 @@ const roll = new Roll();
 // Use modules
 app.use(express.static(path.join(__dirname, '/public')));
 app.use(bodyParser.urlencoded({extended: true}));
+
+app.use(session({
+    secret: "yahtzee",
+    resave: false,
+    saveUninitialized: false
+}));
 
 // Needed for EJS Template 
 app.set("view engine", "ejs");
@@ -30,105 +37,106 @@ var diceKept = [];            // the dice that were kept and need to be highligh
 var rollCount = 0;            // the roll count for turn
 var turnCount = 0;            // keep up with turn count, max of 13
 var yahtzee;                  // yahtzee bonus flag
-var endTurn = false;          // flag to check if turn has ended
+var endTurn = false;
+var newSession = true;         
 
 // Get Requests 
+
 app.get("/", (req,res) => {
 
-    if (turnCount === 0) {
-        newGame.startNewGame( (newScoreCard) => {
-            scoreCard = newScoreCard
-        });
+    if (req.session.endTurn === true) {
+        req.session.diceKept = [];
+        req.session.scoreCat = '';
+        req.session.score = null;          
+        req.session.rollCount = 0;
+        req.session.rollMessage = "New turn. Roll to get started."
+        req.session.endTurn = false;
+        req.session.turnCount++;
+        req.session.save();
     }
 
-    res.render("game", {rollMessage: rollMessage,
-    diceRoll: diceRoll,
-    diceKept: diceKept,
-    rollCount: rollCount,
-    scoreCard: scoreCard,
-    scoreCat: scoreCat,
-    score: score,
-    playerNum: playerNum});
+    if (newSession === true || req.session.turnCount === 0) {
+        newGame.startNewGame( (newScoreCard) => {
+            req.session.scoreCard = newScoreCard;
+            req.session.endTurn = false;
+            req.session.rollMessage = rollMessage;
+            req.session.diceRoll = diceRoll;
+            req.session.diceKept = diceKept;
+            req.session.rollCount = rollCount;
+            req.session.scoreCat = scoreCat;
+            req.session.score = score;
+            req.session.save();
+        });
+
+        newSession = false;
+    }
+
+    if (req.session.turnCount === 13) {
+        rollMessage = "End of game. Final score is " + req.session.scoreCard.grandTotal + "!";
+        req.session.diceRoll = [6,6,6,6,6];
+        req.session.turnCount = 0;
+        req.session.save();
+    }
+
+    res.render("game", {
+        rollMessage: req.session.rollMessage,
+        diceRoll: req.session.diceRoll,
+        diceKept: req.session.diceKept,
+        rollCount: req.session.rollCount,
+        scoreCard: req.session.scoreCard,
+        scoreCat: req.session.scoreCat,
+        score: req.session.score
+    });
 
 });
 
-app.get("/:playerNum", (req,res) => {
-
-    playerNum = req.params.playerNum;
-
-    if (endTurn === true) {
-        diceKept = [];
-        scoreCat = '';
-        score = null;          
-        rollCount = 0;
-        rollMessage = "New turn. Roll to get started."
-        endTurn = false;
-        turnCount++;
-    }
-
-    if (turnCount === 0) {
-        newGame.startNewGame( (newScoreCard) => {
-            scoreCard = newScoreCard
-        });
-    }
-
-    if (turnCount === 13) {
-        rollMessage = "End of game. Final score is " + scoreCard.grandTotal + "!";
-        diceRoll = [6,6,6,6,6];
-        turnCount = 0;
-    }
-
-    res.render("game", {rollMessage: rollMessage,
-    diceRoll: diceRoll,
-    diceKept: diceKept,
-    rollCount: rollCount,
-    scoreCard: scoreCard,
-    scoreCat: scoreCat,
-    score: score,
-    playerNum, playerNum});
-
-});
-
-app.post("/:playerNum", (req,res) => {
-
-    playerNum = req.params.playerNum;
+app.post("/", (req,res) => {
 
     if (req.body.rollBtn) {
-        scoreCat = "";
+        req.session.scoreCat = "";
 
-        turn.takeTurn(req.body.diceKept, rollCount, diceRoll, (turnDiceKept, turnDiceRoll, turnRollCount, turnRollMessage) => {
-            diceKept = turnDiceKept;
-            diceRoll = turnDiceRoll;
-            rollCount = turnRollCount;
-            rollMessage = turnRollMessage;
-            res.redirect("/" + playerNum);
+        turn.takeTurn(req.body.diceKept, req.session.rollCount, req.session.diceRoll, (turnDiceKept, turnDiceRoll, turnRollCount, turnRollMessage) => {
+            req.session.diceKept = turnDiceKept;
+            req.session.diceRoll = turnDiceRoll;
+            req.session.rollCount = turnRollCount;
+            req.session.rollMessage = turnRollMessage;
+            req.session.save();
+
+            res.redirect("/");
         });
     } else if (req.body.scoreBtn) {
 
-        if (score === null) {
-            rollMessage = "Select score card category below to log score."
-            res.redirect("/" + playerNum);
-        } else {
-            scoreCat = req.body.scoreCat;
-            score = req.body.score;
+        if (req.session.score === null) {
+            req.session.rollMessage = "Select score card category below to log score.";
+            req.session.save();
 
-            turn.logScore(scoreCat, score, scoreCard, yahtzee, (scoreUpdate) => {
-                scoreCard = scoreUpdate;
-                endTurn = true;
-                res.redirect("/" + playerNum);
+            res.redirect("/");
+        } else {
+            req.session.scoreCat = req.body.scoreCat;
+            req.session.score = req.body.score;
+
+            turn.logScore(req.session.scoreCat, req.session.score, req.session.scoreCard, req.session.yahtzee, (scoreUpdate) => {
+                req.session.scoreCard = scoreUpdate;
+                req.session.endTurn = true;
+                req.session.save();
+                
+                res.redirect("/");
             });
         }
         
     } else {
-        scoreCat = req.body.scoreCat;
-        diceCalc = req.body.diceRoll;
-        diceKept = req.body.diceKept;
-        rollMessage = "Click to log score."
+        req.session.scoreCat = req.body.scoreCat;
+        req.session.diceCalc = req.body.diceRoll;
+        req.session.diceKept = req.body.diceKept;
+        req.session.rollMessage = "Click to log score."
+        req.session.save();
 
-        turn.calcScore(scoreCat, diceCalc, (result, bonus) => {
-            score = result;
-            yahtzee = bonus;
-            res.redirect("/" + playerNum);
+        turn.calcScore(req.session.scoreCat, req.session.diceCalc, (result, bonus) => {
+            req.session.score = result;
+            req.session.yahtzee = bonus;
+            req.session.save();
+
+            res.redirect("/");
         });
     }
 });
