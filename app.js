@@ -20,7 +20,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
 
 // Global variables
-const playerNum = Math.floor(Math.random() * 10000);
+var playerNum;
 var rollMessage = "Welcome! Roll dice to begin.";
 var scoreCard;
 var scoreCat;
@@ -53,6 +53,8 @@ app.get("/", (req,res) => {
 });
 
 app.get("/:playerNum", (req,res) => {
+
+    playerNum = req.params.playerNum;
 
     if (endTurn === true) {
         diceKept = [];
@@ -88,6 +90,8 @@ app.get("/:playerNum", (req,res) => {
 });
 
 app.post("/:playerNum", (req,res) => {
+
+    playerNum = req.params.playerNum;
 
     if (req.body.rollBtn) {
         scoreCat = "";

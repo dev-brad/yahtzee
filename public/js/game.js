@@ -1,5 +1,15 @@
 const validDicePos = /^[1-5]+$/;
 var keepArray = [];
+var playerNum;
+
+// set number for unique plater sessions 
+if (sessionStorage.playerNum) {
+    playerNum = sessionStorage.getItem('playerNum');
+} else {
+    playerNum = Math.floor(Math.random() * 10000);
+    sessionStorage.setItem('playerNum', playerNum);
+}
+$('form').attr("action", "/" + playerNum);
 
 for (let i=1; i < 6; i++) {
     if ($('#dice' + i).attr('class') === "dice-img pressed") {
