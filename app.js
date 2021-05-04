@@ -102,7 +102,14 @@ app.get("/", (req,res) => {
 
 app.post("/", (req,res) => {
 
-    if (req.body.rollBtn) {
+    if (req.body.restartBtn) {
+
+        req.session.restartGame = true;
+        req.session.save();
+
+        res.redirect("/");
+
+    } else if (req.body.rollBtn) {
         req.session.scoreCat = "";
 
         turn.takeTurn(req.body.diceKept, req.session.rollCount, req.session.diceRoll, (turnDiceKept, turnDiceRoll, turnRollCount, turnRollMessage) => {
@@ -114,6 +121,7 @@ app.post("/", (req,res) => {
 
             res.redirect("/");
         });
+
     } else if (req.body.scoreBtn) {
 
         if (req.session.score === null) {

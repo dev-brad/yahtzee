@@ -50,6 +50,10 @@ img {
   font-weight: bold;
 }
 
+#restart-btn {
+  margin-top: 1rem;
+}
+
 .score-btn {
   all: unset;
   width: 100%;
