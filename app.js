@@ -1,10 +1,12 @@
 // Require external modules
+require('dotenv').config();
 const express = require("express");
 const path = require("path");
 const Roll = require("roll");
 const bodyParser = require("body-parser");
 const session = require("express-session");
-const passport = require("passport");
+const mongoose = require("mongoose");
+const MongoStore = require("connect-mongo");
 
 // Require internal modules 
 const newGame = require(__dirname + "/new-game");
@@ -18,34 +20,34 @@ const roll = new Roll();
 app.use(express.static(path.join(__dirname, '/public')));
 app.use(bodyParser.urlencoded({extended: true}));
 
-app.use(passport.initialize());
-app.use(passport.session());
+const uri = process.env.DB_URI;
+
+mongoose.connect(uri, {
+    useNewUrlParser: true, 
+    useCreateIndex: true,
+    useUnifiedTopology: true
+});
 
 app.use(session({
+    store: MongoStore.create({ mongoUrl: uri}),
     secret: "yahtzee",
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: true
 }));
 
 // Needed for EJS Template 
 app.set("view engine", "ejs");
 
 // Global variables
-var playerNum;
 var rollMessage = "Welcome! Roll dice to begin.";
-var scoreCard;
+// var scoreCard;
 var scoreCat;
 var score = null;
 var diceRoll = [1,2,3,4,5];   // the dice that were rolled and will display on page
 var diceKept = [];            // the dice that were kept and need to be highlighted on page
-var rollCount = 0;            // the roll count for turn
-var turnCount = 0;            // keep up with turn count, max of 13
-var yahtzee;                  // yahtzee bonus flag
-var endTurn = false;
-var newSession = true;         
+var rollCount = 0;            // the roll count for turn       
 
 // Get Requests 
-
 app.get("/", (req,res) => {
 
     if (req.session.endTurn === true) {
@@ -59,9 +61,14 @@ app.get("/", (req,res) => {
         req.session.save();
     }
 
-    if (newSession === true || req.session.turnCount === 0) {
+    if (!req.session.sessionID || req.session.restartGame) {
+
+        req.session.sessionID = req.sessionID;
+        req.session.restartGame = false;
+        
         newGame.startNewGame( (newScoreCard) => {
             req.session.scoreCard = newScoreCard;
+            req.session.turnCount = 0;
             req.session.endTurn = false;
             req.session.rollMessage = rollMessage;
             req.session.diceRoll = diceRoll;
@@ -71,14 +78,13 @@ app.get("/", (req,res) => {
             req.session.score = score;
             req.session.save();
         });
-
-        newSession = false;
     }
 
     if (req.session.turnCount === 13) {
-        rollMessage = "End of game. Final score is " + req.session.scoreCard.grandTotal + "!";
+        req.session.rollMessage = "End of game. Final score is " + req.session.scoreCard.grandTotal + "!";
         req.session.diceRoll = [6,6,6,6,6];
         req.session.turnCount = 0;
+        req.session.restartGame = true;
         req.session.save();
     }
 
