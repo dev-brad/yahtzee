@@ -4,6 +4,7 @@ const path = require("path");
 const Roll = require("roll");
 const bodyParser = require("body-parser");
 const session = require("express-session");
+const passport = require("passport");
 
 // Require internal modules 
 const newGame = require(__dirname + "/new-game");
@@ -16,6 +17,9 @@ const roll = new Roll();
 // Use modules
 app.use(express.static(path.join(__dirname, '/public')));
 app.use(bodyParser.urlencoded({extended: true}));
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use(session({
     secret: "yahtzee",
