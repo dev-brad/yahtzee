@@ -1,5 +1,5 @@
 # yahtzee
-Simple Yahtzee game web application in NodeJS
+Simple Yahtzee web application in NodeJS
 
 Developed by Brad Griffith
 
