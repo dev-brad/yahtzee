@@ -1,7 +1,7 @@
 # yahtzee
 Simple Yahtzee web application in NodeJS
 
-Developed by Brad Griffith
+Developed by Brad Griffith 
 
 ## Play the Game
 ### Hosted on Heroku: [Click here to play](https://web-yahtzee.herokuapp.com/)
